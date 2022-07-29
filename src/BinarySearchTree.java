@@ -81,17 +81,8 @@ public class BinarySearchTree<T extends Comparable<T>> {
      * @return The deleted Node, or null if the data does not exist.
      */
     public Node<T> delete(T data){
-        /*
-        Check if there is data in the list.
-         */
-        if(this.root != null) {
-            Node<T> deletedNode = delete(this.root, data);
-            return deletedNode;
-        }
-        /*
-        If the tree is empty, return null.
-         */
-        return null;
+        Node<T> deletedNode = delete(this.root, data);
+        return deletedNode;
     }
 
     /**
@@ -116,126 +107,45 @@ public class BinarySearchTree<T extends Comparable<T>> {
      */
     private Node<T> delete(Node<T> current, T data){
         /*
-        First we check if the data is the root data.
+        First, we check to make sure there is data in the list. This is the
          */
-        if(data.compareTo(this.root.data) == 0){
-            /*
-            If it is, we check if it has any children. If not, we just make it a null node.
-             */
-            if(current.right == null && current.left == null){
-                this.root = new Node(null);
-            }
-            /*
-            If it has two children, we replace it using the method mentioned above.
-             */
-            else if(current.right != null && current.left != null){
-                current = current.right;
-                if(current.left == null){
-                    this.root = current;
-                    return current;
-                }
-                while (current.left != null){
-                    if (current.left.left == null && current.left.right == null){
-                        this.root.data = current.left.left.data;
-                        current.left.left = null;
-                        return current;
-                    } else if (current.left.left == null && current.left.right != null){
-                        this.root.data = current.left.left.data;
-                        current.left = current.left.right;
-                        return current;
-                    }
-                    current = current.left;
-                }
-            }
-            /*
-            If it has a single child, that child can be set to the root.
-             */
-            else {
-                if (current.right != null){
-                    this.root = current.right;
-                } else {
-                    this.root = current.left;
-                }
-                return current;
-            }
-        }
-        /*
-        After determining that the data is not the root data, we need to find where it is in the tree.
-        More specifically, we need to find its parent so that we can reassign the parent's pointer.
-         */
-        if(data.compareTo(current.data) < 0){
-            if (data.compareTo(current.left.data) == 0) {
-                return current;
-            } else {
-                current = this.delete(current.left, data);
-            }
-        } else if(data.compareTo(current.data) > 0){
-            if (data.compareTo(current.right.data) == 0){
-                return current;
-            } else {
-                current = this.delete(current.right, data);
-            }
-        }
-        /*
-        With the possibility that the data is never found in the list, we will return null if the final
-        current node does not have the data in either child.
-         */
-        if(data.compareTo(current.right.data) != 0 && data.compareTo(current.left.data) != 0){
+        if(current == null){
             return null;
         }
 
-        /*
-        Now that we are sure we found the parent node, we will reassign the pointer of the parent node
-        according to the child conditions laid out in the method description. First, we check if it
-        is a leaf node, assigning our pointer to null if so.
-         */
-        if(data.compareTo(current.right.data) == 0){
-            if(current.right.right == null && current.right.left == null){
-                current.right = null;
-                return current;
-            }
-            /*
-            Next we check to see if it has two children, following the laid out instructions if so.
-             */
-            if(current.right.right != null && current.right.left != null){
-                Node<T> temp = current.right;
-                while(temp.left != null){
-                    if(temp.left.left == null && temp.left.right == null){
-                        current.right.data = temp.left.data;
-                        temp.left.data = null;
-                        return current;
-                    }  else if (temp.left.left == null && temp.left.right != null){
-                        current.right.data = temp.left.data;
-                        temp.left = temp.left.right;
-                        return current;
-                    }
-                    temp = temp.left;
-                }
-            }
+        if(data.compareTo(current.data) < 0){
+            current.left = delete(current.left, data);
+        } else if (data.compareTo(current.data) > 0){
+            current.right = delete(current.right, data);
         } else {
-            if(current.left.right == null && current.left.left == null){
-                current.left = null;
+            if(current.left == null || current.right == null){
+                Node<T> temp;
+                temp = current.left == null ? current.right : current.left;
+                return temp;
+            } else {
+                Node<T> successor = getSuccessor(current);
+                current.data = successor.data;
+                current.right = delete(current.right, successor.data);
                 return current;
-            }
-            if(current.left.right != null && current.left.left != null){
-                Node<T> temp = current.left;
-                while(temp.left != null){
-                    if(temp.left.left == null && temp.left.right == null){
-                        current.left.data = temp.left.data;
-                        temp.left.data = null;
-                        return current;
-                    }  else if (temp.left.left == null && temp.left.right != null){
-                        current.left.data = temp.left.data;
-                        temp.left = temp.left.right;
-                        return current;
-                    }
-                    temp = temp.left;
-                }
             }
         }
 
-        return null;
+        return current;
     }
+
+    public Node<T> getSuccessor(Node<T> current){
+        if(current == null){
+            return null;
+        }
+        Node<T> temp = current.right;
+
+        while(temp.left != null){
+            temp = temp.left;
+        }
+
+        return temp;
+    }
+
     public boolean contains(T data){
         //find the node, if you don't find it, then it doesn't exist
 
